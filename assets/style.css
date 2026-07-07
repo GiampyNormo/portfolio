@@ -586,18 +586,22 @@ html.menu-open .mm-foot { opacity: 1; }
 ---------------------------------------------------------------- */
 .work-teaser { padding: clamp(70px, 11vh, 150px) 0; }
 .teaser-grid {
-  display: grid; grid-template-columns: 1.55fr 1fr;
+  /* 3.16:1 ≈ (16/9)² → le due cornici 16:9 e 9:16 hanno la stessa altezza */
+  display: grid; grid-template-columns: 3.16fr 1fr;
   gap: clamp(18px, 3vw, 40px);
   margin-top: clamp(40px, 6vh, 70px);
-  align-items: stretch;
+  align-items: start;
 }
 .tile { display: block; position: relative; }
 .tile .tile-frame {
   position: relative; overflow: hidden; border-radius: 8px;
-  height: 100%; min-height: 320px;
 }
-.tile--h .tile-frame { aspect-ratio: 16 / 10; }
-.tile--v .tile-frame { aspect-ratio: 9 / 13; }
+/* cornici identiche ai formati video: niente ritagli */
+.tile--h .tile-frame { aspect-ratio: 16 / 9; }
+.tile--v .tile-frame { aspect-ratio: 9 / 16; border-radius: 12px; }
+/* tessera verticale stretta: testi più compatti */
+.tile--v .tile-name { font-size: clamp(1.2rem, 1.9vw, 1.8rem); }
+.tile--v .tile-tag { padding: 6px 10px; font-size: .6rem; letter-spacing: 1.5px; }
 .tile .tile-frame::before {
   content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(to top, rgba(0,0,0,.55), transparent 55%);
@@ -627,7 +631,11 @@ html.menu-open .mm-foot { opacity: 1; }
 .tile:hover .tile-name .arr { transform: translate(6px, -6px); }
 .tile .ph { transition: transform 1s var(--ease-out); }
 .tile:hover .ph { transform: scale(1.05); }
-@media (max-width: 720px) { .teaser-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .teaser-grid { grid-template-columns: 1fr; gap: 24px; }
+  .tile--v { width: min(280px, 78%); justify-self: center; }
+  .tile--v .tile-name { font-size: clamp(1.3rem, 6vw, 1.8rem); }
+}
 
 .work-teaser .teaser-cta { text-align: center; margin-top: clamp(40px, 7vh, 70px); }
 

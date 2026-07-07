@@ -14,6 +14,10 @@
    • File LOCALE (utile in fase di prova, sul tuo computer):
        video: "media/verticali/nome.mp4"
 
+   Copertina opzionale: se un video verticale NON è uno Short di YouTube,
+   la sua miniatura sarebbe orizzontale (verrebbe ritagliata). In quel caso
+   aggiungi una copertina tua con:  cover: "media/covers/nome.jpg"
+
    Per AGGIUNGERE un video: copia una riga e cambia titolo, cliente e video.
    Per TOGLIERE un video: cancella la sua riga.
    Per RIORDINARE: sposta le righe su/giù.
@@ -41,7 +45,7 @@ window.PORTFOLIO = {
   verticali: [
     { titolo: "Backstage MFW",      cliente: "Fashion Week Studio", video: "https://youtube.com/shorts/5BvZQuIkyoU" },
     { titolo: "La nostra squadra",  cliente: "Pizzeria La Ruota",   video: "https://youtube.com/shorts/qx8060ErJ9s" },
-    { titolo: "Giornata in pista",  cliente: "Day 1",               video: "https://youtu.be/v4xwE48U2bA" }
+    { titolo: "Giornata in pista",  cliente: "Day 1",               video: "https://youtu.be/v4xwE48U2bA", cover: "media/covers/day1.jpg" }
   ]
 
 };
