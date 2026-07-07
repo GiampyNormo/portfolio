@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio — Edoardo Guttuso | Videomaker Milano</title>
+<meta name="description" content="I lavori di Edoardo Guttuso: video orizzontali e verticali per brand e social. Spot, reel, TikTok e branded content." />
+<meta name="theme-color" content="#f3f1ec" />
+<meta property="og:title" content="Portfolio — Edoardo Guttuso" />
+<meta property="og:description" content="Video orizzontali e verticali per brand e social." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0c0d'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%2319e3ff'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body class="is-loading">
+
+  <a class="skip-link" href="#main">Salta al contenuto</a>
+
+  <!-- Preloader (prima visita) -->
+  <div class="preloader" aria-hidden="true">
+    <span class="pl-tag">Edoardo Guttuso — Portfolio</span>
+    <span class="pl-count">0</span>
+  </div>
+
+  <!-- Curtain per le transizioni di pagina -->
+  <div class="curtain" aria-hidden="true"></div>
+
+  <!-- Cursore + grana + progress -->
+  <div class="cursor-ring"><span class="cursor-label"></span></div>
+  <div class="cursor-dot"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav">
+    <a href="index.html" class="logo" data-transition data-cursor><span class="dot"></span>Edoardo Guttuso</a>
+    <nav aria-label="Principale">
+      <a href="index.html#about" data-transition>About</a>
+      <a href="portfolio.html" class="active" aria-current="page">Work</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="burger magnetic" data-magnet="0.25" aria-label="Apri menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- MENU MOBILE -->
+  <div class="mobile-menu" aria-label="Menu">
+    <a class="mm-link" href="index.html#about" data-transition><small>01</small>About</a>
+    <a class="mm-link" href="portfolio.html"><small>02</small>Work</a>
+    <a class="mm-link" href="#contact"><small>03</small>Contact</a>
+    <div class="mm-foot">
+      <a href="mailto:Edoardo.g.guttuso@gmail.com">Email</a>
+      <a href="https://www.instagram.com/edoardo_guttuso/" target="_blank" rel="noopener">Instagram</a>
+      <span>Milano, IT</span>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- PAGE HERO -->
+    <section class="page-hero" id="top">
+      <div class="wrap">
+        <span class="eyebrow">Portfolio — Selezione di progetti</span>
+        <h1 class="anim-head hoverable" data-hero-anim>Lavori<span class="hl">.</span></h1>
+        <p class="sub">Una selezione dei progetti che ho seguito: dalle campagne per brand ai contenuti verticali nati per i social.</p>
+      </div>
+    </section>
+
+    <!-- TOP BRAND -->
+    <section class="brands" id="brands">
+      <div class="wrap">
+        <span class="eyebrow reveal"><span class="idx">( 01 )</span> Top brand</span>
+        <h2 class="anim-head hoverable" style="font-size:clamp(2rem,5.5vw,4.2rem);margin-top:16px">Aziende con cui<br>ho <span class="hl">lavorato</span></h2>
+
+        <div class="brands-grid" data-brands>
+          <div class="brand-cell brand-cell--logo reveal"><span class="b-idx">01</span><img class="b-logo" src="media/loghi/fashion-week-studio.png" alt="Fashion Week Studio" /></div>
+          <div class="brand-cell brand-cell--logo reveal"><span class="b-idx">02</span><img class="b-logo" src="media/loghi/lostallo-mondiale.png" alt="Lostallo Mondiale" /></div>
+          <div class="brand-cell brand-cell--logo reveal"><span class="b-idx">03</span><img class="b-logo" src="media/loghi/senesi-giardini.jpg" alt="Senesi Giardini" /></div>
+          <div class="brand-cell brand-cell--logo reveal"><span class="b-idx">04</span><img class="b-logo" src="media/loghi/citynews.png" alt="Citynews" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERIA ORIZZONTALE -->
+    <section class="gallery" id="orizzontali">
+      <div class="gal-head">
+        <span class="eyebrow reveal"><span class="idx">( 02 )</span> Formato orizzontale</span>
+        <h2 class="anim-head hoverable">Orizzontali <span class="hl">16:9</span></h2>
+        <p class="gal-sub reveal">Spot, video aziendali e racconti pensati per lo schermo largo.</p>
+      </div>
+      <div class="wrap-wide">
+        <div class="grid-h" data-gallery="orizzontali">
+
+          <article class="vid-card vid-card--h reveal" data-kind="h" data-video="media/orizzontali/senesi-giardini.mp4" data-title="Senesi Giardini" data-client="Video aziendale" tabindex="0" role="button" aria-label="Guarda: Senesi Giardini" data-cursor-label="Play">
+            <div class="frame img-reveal">
+              <div class="ph"><span class="ph-num">01</span>Senesi Giardini</div>
+              <video class="inline-media vid-prev" muted loop playsinline preload="metadata" src="media/orizzontali/senesi-giardini.mp4#t=0.5"></video>
+              <div class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="caption"><h3>Senesi Giardini</h3><span class="client">Video aziendale</span></div>
+          </article>
+
+          <article class="vid-card vid-card--h reveal d1" data-kind="h" data-video="media/orizzontali/lostallo.mp4" data-title="Lostallo Mondiale" data-client="Evento" tabindex="0" role="button" aria-label="Guarda: Lostallo Mondiale" data-cursor-label="Play">
+            <div class="frame img-reveal">
+              <div class="ph"><span class="ph-num">02</span>Lostallo Mondiale</div>
+              <video class="inline-media vid-prev" muted loop playsinline preload="metadata" src="media/orizzontali/lostallo.mp4#t=0.5"></video>
+              <div class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="caption"><h3>Lostallo Mondiale</h3><span class="client">Evento</span></div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERIA VERTICALE -->
+    <section class="gallery" id="verticali">
+      <div class="gal-head">
+        <span class="eyebrow reveal"><span class="idx">( 03 )</span> Formato verticale</span>
+        <h2 class="anim-head hoverable">Verticali <span class="hl">9:16</span></h2>
+        <p class="gal-sub reveal">Reel, TikTok e stories: contenuti nati per il telefono, come una galleria.</p>
+      </div>
+      <div class="wrap-wide">
+        <div class="grid-v" data-gallery="verticali">
+
+          <article class="vid-card vid-card--v reveal" data-kind="v" data-video="media/verticali/backstage-mfw.mp4" data-title="Backstage MFW" data-client="Fashion Week Studio" tabindex="0" role="button" aria-label="Guarda: Backstage MFW" data-cursor-label="Play">
+            <div class="frame img-reveal">
+              <div class="ph ph--dark"><span class="ph-num">01</span>Backstage MFW</div>
+              <video class="inline-media vid-prev" muted loop playsinline preload="metadata" src="media/verticali/backstage-mfw.mp4#t=0.5"></video>
+              <div class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="caption"><h3>Backstage MFW</h3><span class="client">Fashion Week Studio</span></div>
+          </article>
+
+          <article class="vid-card vid-card--v reveal d1" data-kind="v" data-video="media/verticali/squadra.mp4" data-title="La nostra squadra" data-client="Cinematico" tabindex="0" role="button" aria-label="Guarda: La nostra squadra" data-cursor-label="Play">
+            <div class="frame img-reveal">
+              <div class="ph ph--dark"><span class="ph-num">02</span>La nostra squadra</div>
+              <video class="inline-media vid-prev" muted loop playsinline preload="metadata" src="media/verticali/squadra.mp4#t=0.5"></video>
+              <div class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="caption"><h3>La nostra squadra</h3><span class="client">Cinematico</span></div>
+          </article>
+
+          <article class="vid-card vid-card--v reveal d2" data-kind="v" data-video="media/verticali/day1.mp4" data-title="Day 1" data-client="Recap evento" tabindex="0" role="button" aria-label="Guarda: Day 1" data-cursor-label="Play">
+            <div class="frame img-reveal">
+              <div class="ph ph--dark"><span class="ph-num">03</span>Day 1</div>
+              <video class="inline-media vid-prev" muted loop playsinline preload="metadata" src="media/verticali/day1.mp4#t=0.5"></video>
+              <div class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="caption"><h3>Day 1</h3><span class="client">Recap evento</span></div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <div class="contact-band" id="contact">
+      <div class="wrap contact-inner">
+        <span class="eyebrow"><span class="idx">( 04 )</span> Contatti</span>
+        <h2 class="anim-head hoverable" style="margin-top:18px">Lavoriamo<br>insieme</h2>
+        <p class="contact-sub">Hai un progetto in mente? Raccontamelo.</p>
+        <a class="email-link" href="mailto:Edoardo.g.guttuso@gmail.com" data-cursor-label="Scrivi">Edoardo.g.guttuso@gmail.com</a>
+        <div class="socials">
+          <a class="magnetic" data-magnet="0.25" href="https://www.instagram.com/edoardo_guttuso/" target="_blank" rel="noopener">Instagram</a>
+          <a class="magnetic" data-magnet="0.25" href="mailto:Edoardo.g.guttuso@gmail.com">Email</a>
+        </div>
+      </div>
+      <div class="wrap">
+        <footer class="site-footer">
+          <span>© <span data-year></span> Edoardo Guttuso</span>
+          <span class="f-clock">Milano — <span data-clock>00:00:00</span></span>
+          <a class="to-top magnetic" data-magnet="0.3" href="#top" aria-label="Torna su">↑</a>
+        </footer>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" hidden role="dialog" aria-modal="true" aria-label="Player video">
+    <div class="lb-backdrop"></div>
+    <figure class="lb-body">
+      <button class="lb-close" aria-label="Chiudi">✕</button>
+      <div class="lb-media"></div>
+      <figcaption class="lb-cap">
+        <span class="lb-title"></span>
+        <span class="lb-client"></span>
+      </figcaption>
+    </figure>
+  </div>
+
+<script src="assets/progetti.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

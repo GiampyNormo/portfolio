@@ -1,0 +1,13 @@
+# File di sistema
+.DS_Store
+*.log
+
+# Strumenti locali di anteprima (non servono online)
+.claude/
+
+# Video pesanti dei lavori: sono su YouTube, non vanno su GitHub
+media/orizzontali/
+media/verticali/
+
+# Eventuali dipendenze
+node_modules/
