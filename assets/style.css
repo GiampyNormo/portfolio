@@ -503,17 +503,19 @@ html.menu-open .mm-foot { opacity: 1; }
   max-width: 20ch; margin-top: 26px;
 }
 .about-media {
-  display: grid; grid-template-columns: 1fr 1fr;
+  /* video 9:16 (slim) + foto 3:2 (ampia): larghezze calibrate per pari altezza */
+  display: grid; grid-template-columns: 1fr 2.6fr;
   gap: clamp(18px, 3vw, 44px);
   margin: clamp(56px, 8vw, 110px) 0;
   align-items: center;
 }
 .about-media .img-reveal { border-radius: 14px; }
 .about-media .slot-video { aspect-ratio: 9 / 16; }
-.about-media .slot-photo { aspect-ratio: 3 / 4; }
+.about-media .slot-photo { aspect-ratio: 3 / 2; }
 @media (max-width: 760px) {
-  .about-media { grid-template-columns: 1fr; gap: 22px; }
-  .about-media .img-reveal { max-width: 360px; justify-self: center; width: 100%; }
+  .about-media { grid-template-columns: 1fr; gap: 26px; justify-items: center; }
+  .about-media .slot-video { max-width: 320px; width: 100%; }
+  .about-media .slot-photo { max-width: 480px; width: 100%; }
 }
 
 .about-text {
