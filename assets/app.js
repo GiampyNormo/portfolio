@@ -369,7 +369,8 @@
      ============================================================== */
   const progress = document.querySelector('.scroll-progress');
   const nav = document.querySelector('header.nav');
-  const darkBand = document.querySelector('.contact-band');
+  // sezioni scure sotto cui il menù diventa chiaro (contatti + galleria 3D)
+  const darkBands = Array.from(document.querySelectorAll('.contact-band, [data-nav-dark]'));
   const plxEls = reducedMotion ? [] : Array.from(document.querySelectorAll('[data-parallax]'));
 
   let ticking = false;
@@ -381,7 +382,10 @@
     if (progress) progress.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
     if (nav) {
       nav.classList.toggle('scrolled', scrollY > 40);
-      if (darkBand) nav.classList.toggle('over-dark', darkBand.getBoundingClientRect().top < 64);
+      nav.classList.toggle('over-dark', darkBands.some(el => {
+        const r = el.getBoundingClientRect();
+        return r.top < 64 && r.bottom > 64;
+      }));
     }
 
     if (scrubWords.length) {
@@ -531,6 +535,9 @@
     lbClose.addEventListener('click', closeLightbox);
     lb.querySelector('.lb-backdrop').addEventListener('click', closeLightbox);
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) closeLightbox(); });
+
+    // usato dalla galleria 3D: apre un progetto { video, kind, title, client }
+    window.egOpenVideo = (p) => openLightbox({ dataset: p });
   }
 
   /* ==============================================================

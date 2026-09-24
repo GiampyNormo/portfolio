@@ -14,6 +14,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/style.css" />
+<script>
+  /* Galleria 3D: si attiva subito (niente "salto" di layout) se il dispositivo
+     supporta WebGL e l'utente non ha chiesto di ridurre le animazioni.
+     Se poi la libreria 3D non si carica, gallery3d.js torna alle griglie. */
+  (function () {
+    try {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var c = document.createElement('canvas');
+      if (!(c.getContext('webgl2') || c.getContext('webgl'))) return;
+      document.documentElement.classList.add('has-3d');
+      if (sessionStorage.getItem('eg-view') === 'grid') document.documentElement.classList.add('view-grid');
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body class="is-loading">
 
@@ -84,6 +98,39 @@
         </div>
       </div>
     </section>
+
+    <!-- GALLERIA 3D: scrollando si cammina tra i lavori (i quadri arrivano da progetti.js) -->
+    <section class="g3d" id="galleria" data-nav-dark aria-label="Galleria 3D dei lavori">
+      <div class="g3d-sticky">
+        <div class="g3d-stage" aria-hidden="true"></div>
+        <div class="g3d-hud">
+          <div class="g3d-intro">
+            <span class="eyebrow"><span class="idx">( 02 )</span> Galleria</span>
+            <h2 class="g3d-title">Cammina<br>tra i <span class="hl">lavori.</span></h2>
+            <p class="g3d-hint"><span>Scorri per entrare</span> <span class="g3d-hint-arrow">↓</span></p>
+          </div>
+          <div class="g3d-bar">
+            <div class="g3d-now" aria-live="polite">
+              <span class="g3d-idx">—</span>
+              <span class="g3d-meta"><span class="g3d-name"></span><span class="g3d-client"></span></span>
+            </div>
+            <div class="g3d-actions">
+              <button class="g3d-play" type="button" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg> Guarda
+              </button>
+              <button class="g3d-toggle" type="button">Vista griglia</button>
+            </div>
+          </div>
+          <div class="g3d-progress" aria-hidden="true"><span></span></div>
+        </div>
+        <ul class="g3d-a11y sr-only" aria-label="Elenco dei lavori"></ul>
+      </div>
+    </section>
+
+    <!-- Barra per tornare alla galleria 3D (visibile solo in vista griglia) -->
+    <div class="wrap g3d-back">
+      <button class="btn g3d-back-btn" type="button">Torna alla galleria 3D <span class="arr">→</span></button>
+    </div>
 
     <!-- GALLERIA ORIZZONTALE -->
     <section class="gallery" id="orizzontali">
@@ -196,5 +243,6 @@
 
 <script src="assets/progetti.js"></script>
 <script src="assets/app.js"></script>
+<script type="module" src="assets/gallery3d.js"></script>
 </body>
 </html>
