@@ -23,16 +23,6 @@ const ytId = (url) => {
   return m ? m[1] : null;
 };
 
-// alterna orizzontali e verticali per dare ritmo alla camminata
-function interleave(h, v) {
-  const out = [];
-  for (let i = 0; i < Math.max(h.length, v.length); i++) {
-    if (h[i]) out.push(h[i]);
-    if (v[i]) out.push(v[i]);
-  }
-  return out;
-}
-
 // i testi dei quadri sono disegnati su canvas: aspetto i font del sito
 async function fontsReady() {
   if (!document.fonts || !document.fonts.load) return;
@@ -52,10 +42,15 @@ async function main() {
   if (!section || !root.classList.contains('has-3d')) return;
 
   const DATA = window.PORTFOLIO || {};
-  const projects = interleave(
-    (DATA.orizzontali || []).map(p => ({ ...p, kind: 'h' })),
-    (DATA.verticali || []).map(p => ({ ...p, kind: 'v' }))
-  );
+  // due "sale": prima tutti gli orizzontali, poi tutti i verticali
+  const groups = [
+    { kind: 'h', label: 'Orizzontali', ratio: '16:9', items: DATA.orizzontali || [] },
+    { kind: 'v', label: 'Verticali', ratio: '9:16', items: DATA.verticali || [] }
+  ].filter((gr) => gr.items.length);
+  const projects = [];
+  groups.forEach((gr, gi) => gr.items.forEach((p, k) => projects.push({
+    ...p, kind: gr.kind, group: gi, pos: k, groupSize: gr.items.length, groupLabel: gr.label
+  })));
   if (!projects.length) return fallbackToGrid();
 
   let THREE;
@@ -197,7 +192,7 @@ async function main() {
     const t = canvasTex(1024, 256, (g, w) => {
       g.fillStyle = '#19e3ff';
       g.font = '600 36px "Space Grotesk", sans-serif';
-      g.fillText(`${pad(i + 1)} / ${pad(n)}`, 4, 50);
+      g.fillText(`${pad(p.pos + 1)} / ${pad(p.groupSize)}`, 4, 50);
       let size = 76;
       g.font = `700 ${size}px "Space Grotesk", sans-serif`;
       while (g.measureText(p.titolo || '').width > w - 10 && size > 40) {
@@ -209,6 +204,36 @@ async function main() {
       g.font = '500 32px "Inter", sans-serif';
       g.letterSpacing = '6px';
       g.fillText(String(p.cliente || '').toUpperCase(), 4, 205);
+    });
+    t.userData.owned = true;
+    return t;
+  }
+
+  // insegna della sala: largo = striscione 4:1, stretto = pannello 2:1 su più righe
+  function signTexture(gr, gi, wide) {
+    const W = 2048, H = wide ? 512 : 1024;
+    const t = canvasTex(W, H, (g) => {
+      g.fillStyle = '#efece5'; g.fillRect(0, 0, W, H);
+      g.strokeStyle = 'rgba(12,12,13,0.12)'; g.lineWidth = 6; g.strokeRect(3, 3, W - 6, H - 6);
+      const x = wide ? 110 : 130;
+      const count = `${gr.items.length} ${gr.items.length === 1 ? 'VIDEO' : 'VIDEO'}`;
+      g.fillStyle = '#0aa6c9';
+      g.font = '600 60px "Space Grotesk", sans-serif';
+      g.letterSpacing = '12px';
+      g.fillText(`SALA ${pad(gi + 1)}  ·  ${count}`, x, wide ? 150 : 250);
+      g.letterSpacing = '0px';
+      // riduce il font finché la riga più lunga entra nel pannello
+      const line = wide ? `${gr.label} ${gr.ratio}` : gr.label;
+      let size = 230;
+      g.font = `700 ${size}px "Space Grotesk", sans-serif`;
+      while (g.measureText(line).width > W - 2 * x && size > 80) {
+        size -= 8; g.font = `700 ${size}px "Space Grotesk", sans-serif`;
+      }
+      g.fillStyle = '#0c0c0d';
+      g.fillText(gr.label, x, wide ? 410 : 560);
+      g.fillStyle = '#0aa6c9';
+      if (wide) g.fillText(gr.ratio, x + g.measureText(gr.label + ' ').width, 410);
+      else g.fillText(gr.ratio, x, 830);
     });
     t.userData.owned = true;
     return t;
@@ -269,7 +294,7 @@ async function main() {
   projects.forEach((_, i) => cover(i));   // caricamento in parallelo, subito
 
   /* ---------- impostazioni per formato schermo ---------- */
-  const Z0 = 5;   // dove parte la camminata
+  let Z0 = 5;   // dove parte la camminata (ricalcolato in build)
   function computeCfg() {
     const w = sticky.clientWidth || innerWidth, h = sticky.clientHeight || innerHeight;
     const aspect = w / h;
@@ -279,22 +304,36 @@ async function main() {
       return {
         wide: true, fov, spacing: 5.6, sideX: 2.1, rot: 0.62, hW: 2.5, vW: 1.15,
         wallX: 4.2, ceil: 4.6, eye: 1.6, frameY: 1.85, viewOffset: 4.0,
-        endGap: 8, camStop: 6.5, fogFar: 34, vhPerUnit: 17, stripX: 1.3, endW: 5.4
+        endGap: 8, camStop: 6.5, fogFar: 34, vhPerUnit: 17, stripX: 1.3, endW: 5.4,
+        groupGap: 4.0, signW: 4.8, signY: 3.7, signFromFirst: 2.2, z0Back: 8
       };
     }
-    // telefono/verticale: i quadri vengono incontro al centro e si attraversano
-    const fov = 64;
-    const halfW = 3.1 * Math.tan(fov / 2 * Math.PI / 180) * aspect;
-    const hW = clamp(halfW * 1.45, 0.9, 1.7);
+    // telefono / finestra stretta: i quadri restano ai lati e lo sguardo si gira
+    // verso ciascuno, fermandosi davanti. La camera non attraversa mai un quadro.
+    const fov = 62, rot = 0.62, sideX = 1.5;
+    const D = sideX / Math.sin(rot);                      // distanza della vista frontale
+    const tanH = Math.tan(fov / 2 * Math.PI / 180);
+    const visH = 2 * D * tanH, visW = visH * aspect;      // area inquadrata a quella distanza
+    const camStop = 5;
     return {
-      wide: false, fov, spacing: 4.6, sideX: clamp(halfW - hW / 2 - 0.04, 0, 0.38), rot: 0.12,
-      hW, vW: hW * 0.62, wallX: 2.1, ceil: 3.8, eye: 1.6, frameY: 1.62, viewOffset: 3.1,
-      endGap: 6, camStop: 5, fogFar: 26, vhPerUnit: 20, stripX: 0.7, endW: 3.6
+      wide: false, fov, spacing: 4.2, sideX, rot,
+      hW: clamp(visW * 0.86 - 0.16, 0.6, 2.2),
+      // verticali un po' più bassi e alzati: restano sopra la barra in basso dell'HUD
+      vW: clamp(Math.min(visW * 0.86 - 0.16, visH * 0.56 * 9 / 16), 0.45, 1.2),
+      viewZ: D * Math.cos(rot), viewOffset: D * Math.cos(rot),
+      wallX: 2.6, ceil: 3.8, eye: 1.6, frameY: 1.72,
+      endGap: 6, camStop, fogFar: 24, segVh: 95, stripX: 0.8,
+      endW: Math.min(3.6, 2 * camStop * tanH * aspect * 0.92),
+      // insegna: ci si ferma a 3 metri, sguardo un po' in su; resta sopra la testa
+      groupGap: 3.4, signStop: 3.0, signPitch: 0.12, signFromFirst: 2.2, z0Back: 6,
+      signW: clamp(2 * 3.0 * tanH * aspect * 0.9, 1.1, 2.2)
     };
   }
 
   /* ---------- costruzione del mondo ---------- */
   let cfg = null, world = null, frames = [], hitList = [], L = 1;
+  let keys = [];   // modalità stretta: tappe della camera (posizione + direzione dello sguardo)
+  let signs = [];  // insegne delle sale
 
   function disposeWorld() {
     if (!world) return;
@@ -317,18 +356,28 @@ async function main() {
     frames = []; hitList = [];
 
     const n = projects.length;
-    const zOf = (i) => -i * cfg.spacing;
+    // tra una sala e l'altra c'è un varco in più
+    const zOf = (i) => -i * cfg.spacing - projects[i].group * cfg.groupGap;
+    // insegne: la prima all'ingresso della sala 1, le altre a metà del varco
+    signs = groups.map((gr, gi) => {
+      const first = projects.findIndex((p) => p.group === gi);
+      const z = gi === 0 ? zOf(first) + cfg.signFromFirst : (zOf(first - 1) + zOf(first)) / 2;
+      return { gr, gi, first, z };
+    });
+    Z0 = signs[0].z + cfg.z0Back;
     const endZ = zOf(n - 1) - cfg.endGap;
     L = Z0 - (endZ + cfg.camStop);
     const zFront = Z0 + 12, len = zFront - endZ, zMid = (zFront + endZ) / 2;
-    const narrowFade = !cfg.wide;
+    const narrowFade = false;   // nessun quadro viene più attraversato
 
     scene.fog = new THREE.Fog(0x0b0b0c, 6, cfg.fogFar);
     camera.fov = cfg.fov;
     camera.updateProjectionMatrix();
 
-    // lunghezza di scroll proporzionale al percorso
-    section.style.height = `${Math.round(100 + L * cfg.vhPerUnit)}vh`;
+    // lunghezza di scroll: proporzionale al percorso (largo) o una tappa per quadro (stretto)
+    section.style.height = cfg.wide
+      ? `${Math.round(100 + L * cfg.vhPerUnit)}vh`
+      : `${Math.round(100 + cfg.segVh * (n + 1))}vh`;
 
     /* pavimento lucido (semi-trasparente: lascia vedere i riflessi) */
     T.floor.repeat.set((cfg.wallX * 2) / 2.2, len / 2.2);
@@ -425,6 +474,34 @@ async function main() {
     endText.userData.end = true;
     world.add(endText);
     hitList.push(endText);
+
+    /* insegne delle sale, appese al soffitto (sopra la testa: ci si passa sotto) */
+    for (const s of signs) {
+      const w = cfg.signW, h = cfg.wide ? w / 4 : w / 2;
+      const y = cfg.wide ? cfg.signY : cfg.eye + 0.35 + h / 2;
+      const sign = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({ map: signTexture(s.gr, s.gi, cfg.wide) })
+      );
+      sign.position.set(0, y, s.z);
+      world.add(sign);
+      const top = y + h / 2;
+      world.add(new THREE.LineSegments(
+        new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-w * 0.4, top, s.z), new THREE.Vector3(-w * 0.4, cfg.ceil, s.z),
+          new THREE.Vector3(w * 0.4, top, s.z), new THREE.Vector3(w * 0.4, cfg.ceil, s.z)
+        ]),
+        new THREE.LineBasicMaterial({ color: 0x55555c, transparent: true, opacity: 0.7 })
+      ));
+      // alone di luce calda dietro l'insegna
+      const halo = new THREE.Mesh(
+        new THREE.PlaneGeometry(w * 1.5, h * 2.2),
+        new THREE.MeshBasicMaterial({ map: T.radial, color: 0xffe6c4, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      halo.position.set(0, y, s.z - 0.02);
+      halo.renderOrder = 2;
+      world.add(halo);
+    }
 
     /* i quadri */
     projects.forEach((p, i) => {
@@ -529,7 +606,7 @@ async function main() {
       rImg.position.z = img.position.z;
       refl.add(rBorder, rMatte, rImg);
 
-      const f = { p, i, g, refl, z, border, borderMat, playMat, fadeMats, hov: 0, fade: 1, view: cfg.viewOffset, loaded: false };
+      const f = { p, i, g, refl, z, side, border, borderMat, playMat, fadeMats, hov: 0, fade: 1, view: cfg.viewOffset, loaded: false };
       frames.push(f);
 
       cover(i).then((tex) => {
@@ -540,8 +617,36 @@ async function main() {
       });
     });
 
+    // tappe (modalità stretta): ingresso → insegna sala → davanti a ogni suo quadro
+    // (girati verso di lui) → insegna sala successiva → … → muro finale
+    keys = [{ z: Z0, yaw: 0, pitch: 0 }];
+    for (const s of signs) {
+      keys.push({ z: s.z + (cfg.signStop || 0), yaw: 0, pitch: cfg.signPitch || 0, sign: s.gi });
+      for (const f of frames) {
+        if (f.p.group === s.gi) keys.push({ z: f.z + cfg.viewZ, yaw: -f.side * cfg.rot, pitch: 0, frame: f.i });
+      }
+    }
+    keys.push({ z: endZ + cfg.camStop, yaw: 0, pitch: 0 });
+
     computeViews();
   }
+
+  // Dove si trova la camera (e dove guarda) per una data percentuale di scroll.
+  // Stretto: tra una tappa e l'altra c'è una sosta (20% + 20%) a ogni tappa.
+  function pathAt(p) {
+    if (cfg.wide) return { z: Z0 - p * L, yaw: 0, pitch: 0, cur: null };
+    const segs = keys.length - 1, u = p * segs;
+    const s = Math.min(Math.floor(u), segs - 1), te = smooth(0.2, 0.8, u - s);
+    const a = keys[s], b = keys[s + 1], k = Math.round(u);
+    return {
+      z: a.z + (b.z - a.z) * te,
+      yaw: a.yaw + (b.yaw - a.yaw) * te,
+      pitch: a.pitch + (b.pitch - a.pitch) * te,
+      cur: (Math.abs(u - k) < 0.3 && keys[k] && keys[k].frame !== undefined) ? keys[k].frame : -1
+    };
+  }
+  // percentuale di scroll di una tappa / di un quadro
+  const keyProgress = (k) => k / (keys.length - 1);
 
   // Punto di vista ideale di ogni quadro: la distanza minima a cui il quadro,
   // cornice compresa, sta tutto nell'inquadratura (vale per ogni formato schermo).
@@ -574,7 +679,7 @@ async function main() {
 
   /* ---------- stato, scroll e camminata ---------- */
   const state = {
-    camZ: Z0, yaw: 0, pitch: 0, tYaw: 0, tPitch: 0, bob: 0,
+    camZ: Z0, yaw: 0, pitch: 0, tYaw: 0, tPitch: 0, bob: 0, baseYaw: 0, basePitch: 0,
     current: -2, hover: -1, hoverEnd: false, active: true, walking: null, progress: 0
   };
 
@@ -592,7 +697,7 @@ async function main() {
     hud.play.hidden = !on;
     if (on) {
       const p = projects[i];
-      hud.idx.textContent = `${pad(i + 1)} / ${pad(projects.length)}`;
+      hud.idx.textContent = `${p.groupLabel} ${pad(p.pos + 1)}/${pad(p.groupSize)}`;
       hud.name.textContent = p.titolo || '';
       hud.client.textContent = p.cliente || '';
     }
@@ -704,7 +809,8 @@ async function main() {
     const next = computeCfg();
     if (!cfg || next.wide !== cfg.wide || (!next.wide && Math.abs(next.hW - cfg.hW) > 0.08)) {
       build(next);
-      state.camZ = Z0 - scrollProgress() * L;
+      const at = pathAt(scrollProgress());
+      state.camZ = at.z; state.baseYaw = at.yaw; state.basePitch = at.pitch;
     } else {
       cfg.fov = next.fov;
       camera.fov = cfg.fov;
@@ -717,16 +823,21 @@ async function main() {
 
   new IntersectionObserver(([en]) => { state.active = en.isIntersecting; }, { rootMargin: '200px 0px' }).observe(section);
 
-  /* ---------- arrivo da home con #orizzontali / #verticali ---------- */
+  /* ---------- arrivo da home con #orizzontali / #verticali: davanti all'insegna della sala ---------- */
+  function progressForSign(gi) {
+    if (!cfg.wide) return keyProgress(keys.findIndex((k) => k.sign === gi));
+    const s = signs.find((x) => x.gi === gi);
+    return clamp((Z0 - (s.z + 7)) / L, 0, 1);   // insegna 7 metri avanti, primi quadri in vista
+  }
   const hash = location.hash.slice(1);
-  if ((hash === 'orizzontali' || hash === 'verticali') && !root.classList.contains('view-grid') && scrollY < 60) {
-    const i = projects.findIndex((p) => p.kind === (hash === 'orizzontali' ? 'h' : 'v'));
-    if (i >= 0 && cfg) {
-      const f = frames[i];
-      const pT = clamp((Z0 - (f.z + f.view)) / L, 0, 1);
+  if ((hash === 'orizzontali' || hash === 'verticali') && !root.classList.contains('view-grid') && scrollY < 60 && cfg) {
+    const gi = groups.findIndex((gr) => gr.kind === (hash === 'orizzontali' ? 'h' : 'v'));
+    if (gi >= 0) {
+      const pT = progressForSign(gi);
       const top = section.getBoundingClientRect().top + scrollY + pT * (section.offsetHeight - sticky.clientHeight);
       scrollTo({ top, behavior: 'instant' });
-      state.camZ = Z0 - pT * L;
+      const at = pathAt(pT);
+      state.camZ = at.z; state.baseYaw = at.yaw; state.basePitch = at.pitch;
     }
   }
 
@@ -742,12 +853,15 @@ async function main() {
   function update(dt) {
     if (!cfg || !sticky.clientWidth) return;
 
-    // camminata: la camera insegue lo scroll con un po' di inerzia
+    // camminata: la camera insegue il percorso (e lo sguardo) con un po' di inerzia
     const p = scrollProgress();
     state.progress = p;
-    const target = Z0 - p * L;
+    const at = pathAt(p);
+    const follow = 1 - Math.pow(0.0008, dt);
     const prevZ = state.camZ;
-    state.camZ += (target - state.camZ) * (1 - Math.pow(0.0008, dt));
+    state.camZ += (at.z - state.camZ) * follow;
+    state.baseYaw += (at.yaw - state.baseYaw) * follow;
+    state.basePitch += (at.pitch - state.basePitch) * follow;
     const step = Math.abs(state.camZ - prevZ);
     state.bob += step * 2.4;
     const bobAmp = clamp(step / Math.max(dt, 1e-3) / 3, 0, 1) * 0.022;
@@ -759,7 +873,7 @@ async function main() {
     state.yaw += ((lookOn ? state.tYaw : 0) + idle - state.yaw) * lookK;
     state.pitch += ((lookOn ? state.tPitch : 0) - state.pitch) * lookK;
     camera.position.set(0, cfg.eye + Math.sin(state.bob) * bobAmp, state.camZ);
-    camera.rotation.set(state.pitch, state.yaw, 0);
+    camera.rotation.set(state.basePitch + state.pitch, state.baseYaw + state.yaw, 0);
 
     // quadri: il più vicino al punto di vista diventa "quello attuale"
     let best = -1, bestD = Infinity;
@@ -769,8 +883,7 @@ async function main() {
       const vd = Math.abs(d - f.view);
       if (d > -0.5 && vd < bestD) { bestD = vd; best = f.i; }
 
-      f.fade = cfg.wide ? 1 : smooth(0.35, 1.35, d);
-      const visible = cfg.wide ? d > -4 : f.fade > 0.001;
+      const visible = d > -4;       // i quadri superati da un po' non si disegnano
       f.g.visible = f.refl.visible = visible;
       if (!visible) continue;
 
@@ -780,10 +893,9 @@ async function main() {
       f.g.scale.setScalar(s);
       f.refl.scale.set(s, -s, s);
       f.borderMat.color.copy(C.border).lerp(C.accent, f.hov);
-      f.playMat.opacity = f.hov * 0.95 * f.fade;
-      if (!cfg.wide) for (const m of f.fadeMats) m.opacity = m.userData.base * f.fade;
+      f.playMat.opacity = f.hov * 0.95;
     }
-    updateNow(bestD < cfg.spacing * 0.55 ? best : -1);
+    updateNow(cfg.wide ? (bestD < cfg.spacing * 0.55 ? best : -1) : at.cur);
 
     // HUD
     const walking = p > 0.015;
@@ -800,6 +912,7 @@ async function main() {
   window.__g3d = {
     THREE, renderer, scene, camera, state, projects,
     get frames() { return frames; }, get cfg() { return cfg; }, get L() { return L; },
+    get keys() { return keys; }, get signs() { return signs; }, get Z0() { return Z0; }, pathAt, keyProgress,
     step(n = 1, dt = 1 / 60) { for (let k = 0; k < n; k++) update(dt); },   // avanza a mano (tab in background)
     resize
   };
