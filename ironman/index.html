@@ -495,7 +495,7 @@ a{color:inherit}
       <ol class="steps">
         <li><span class="n">1</span><h3>Scegli lo spazio</h3><p>Undici spazi tra petto, pancia, spalle, fianchi e schiena. Ognuno ha una misura e un prezzo fissi.</p></li>
         <li><span class="n">2</span><h3>Prova il logo</h3><p>Carica il logo e guardalo sul body in 3D, nello spazio che hai scelto, a colori o in bianco.</p></li>
-        <li><span class="n">3</span><h3>Conferma</h3><p>Lasci i dati dell'azienda e mi mandi la richiesta. Ti rispondo via email: lo spazio è tuo quando firmiamo il contratto e paghi l'acconto del 50%.</p></li>
+        <li><span class="n">3</span><h3>Conferma</h3><p>Lasci i dati dell'azienda e mi mandi la richiesta. Per bloccare lo spazio confermi la richiesta con il link che ti arriva via email. Lo spazio è tuo quando firmiamo il contratto e paghi l'acconto del 50%.</p></li>
         <li><span class="n">4</span><h3>In gara</h3><p>Il body va in stampa con tutti i loghi e lo indosso in gara, in bici e in corsa.</p></li>
       </ol>
     </div>
@@ -1771,16 +1771,15 @@ function logoForBooking() {
   } catch { return ''; }
 }
 async function sendBooking(s) {
-  if (!CONFIG.bookings.url) return false;
+  if (!CONFIG.bookings.url) return {};
   const f = state.form;
   const body = JSON.stringify({ spazio: s.id, azienda: f.company, referente: f.name, email: f.email, sito: f.web, note: f.note, logo: logoForBooking(), _honey: '' });
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), SEND_LIMIT);
   try {
     const r = await fetch(CONFIG.bookings.url, { method: 'POST', body, signal: ctrl.signal });
-    const j = await r.json().catch(() => ({}));
-    return !!j.ok;
-  } catch { return false; } finally { clearTimeout(timer); }
+    return await r.json().catch(() => ({}));
+  } catch { return {}; } finally { clearTimeout(timer); }
 }
 async function loadBookings() {
   if (!CONFIG.bookings.url) return;
@@ -1826,6 +1825,9 @@ function viewDone(s) {
         <textarea readonly aria-label="Testo della richiesta">${esc(m.text)}</textarea>
         <button type="button" class="btn ghost small" data-act="copy-req">Copia il testo</button>
       </details>`;
+  const bookNote = state.booking === 'verifica'
+    ? `<p class="demo">Per bloccare lo spazio clicca il link che ti ho mandato a <b>${esc(state.form.email)}</b>: finché non lo clicchi lo spazio resta libero.</p>`
+    : state.booking === 'limite' ? '<p class="demo">Con questa email ci sono già 2 spazi in attesa: la richiesta mi arriva, ma questo spazio non viene bloccato.</p>' : '';
   if (state.sent === 'slow') {
     return `<div class="done">
       <div class="p-head"><p class="eyebrow">Spazio ${pad2(s.n)} · ${esc(s.name)}</p><h3>L'invio ci sta mettendo troppo</h3></div>
@@ -1834,6 +1836,7 @@ function viewDone(s) {
         <a class="btn primary" href="${esc(m.href)}" target="_blank" rel="noopener">Apri l'email già scritta</a>
         <button type="button" class="btn ghost" data-act="back">Torna agli spazi</button>
       </div>
+      ${bookNote}
       ${copy}
     </div>`;
   }
@@ -1845,6 +1848,7 @@ function viewDone(s) {
         <a class="btn primary" href="${esc(m.href)}" target="_blank" rel="noopener">Apri l'email già scritta</a>
         <button type="button" class="btn ghost" data-act="back">Torna agli spazi</button>
       </div>
+      ${bookNote}
       ${copy}
     </div>`;
   }
@@ -1852,6 +1856,7 @@ function viewDone(s) {
       <span class="check">${ICON_CHECK}</span>
       <div class="p-head"><p class="eyebrow">Spazio ${pad2(s.n)} · ${esc(s.name)}</p><h3>Richiesta inviata</h3></div>
       <p class="muted">${reply}</p>
+      ${bookNote}
       <div class="done-actions">
         <button type="button" class="btn ghost" data-act="back">Torna agli spazi</button>
       </div>
@@ -1940,12 +1945,13 @@ panel.addEventListener('click', (e) => {
     Promise.all([sendRequest(s), sendBooking(s)]).then(([res, booked]) => {
       waitT.forEach(clearTimeout);
       state.sent = res;
-      if (res === 'ok' || booked) {
+      state.booking = booked.verifica ? 'verifica' : (booked.errore === 'limite' ? 'limite' : '');
+      if (booked.ok && !booked.verifica || !CONFIG.bookings.url && res === 'ok') {
         s.sold = { name: '', pending: true };
         if (three) three.refreshSlot(s.id);
         renderFunding();
       }
-      if (booked) loadBookings();
+      if (booked.ok) loadBookings();
       state.step = 'done';
       renderPanel();
     });
