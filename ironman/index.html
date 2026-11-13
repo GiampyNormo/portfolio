@@ -493,7 +493,7 @@ a{color:inherit}
         </div>
       </div>
       <ol class="steps">
-        <li><span class="n">1</span><h3>Scegli lo spazio</h3><p>Undici spazi tra petto, pancia, spalle, gambe e schiena. Ognuno ha una misura e un prezzo fissi.</p></li>
+        <li><span class="n">1</span><h3>Scegli lo spazio</h3><p>Undici spazi tra petto, pancia, spalle, fianchi e schiena. Ognuno ha una misura e un prezzo fissi.</p></li>
         <li><span class="n">2</span><h3>Prova il logo</h3><p>Carica il logo e guardalo sul body in 3D, nello spazio che hai scelto, a colori o in bianco.</p></li>
         <li><span class="n">3</span><h3>Conferma</h3><p>Lasci i dati dell'azienda e mi mandi la richiesta. Ti rispondo via email: lo spazio è tuo quando firmiamo il contratto e paghi l'acconto del 50%.</p></li>
         <li><span class="n">4</span><h3>In gara</h3><p>Il body va in stampa con tutti i loghi e lo indosso in gara, in bici e in corsa.</p></li>
@@ -584,7 +584,7 @@ a{color:inherit}
         <details><summary>In che formato devo mandare il logo?</summary><p>Meglio vettoriale: SVG, PDF o AI. Va bene anche un PNG con sfondo trasparente, almeno 2000 px sul lato lungo.</p></details>
         <details><summary>Il logo può essere a colori?</summary><p>Sì. Nell'anteprima 3D puoi provare sia la versione a colori sia quella monocromatica.</p></details>
         <details><summary>Si vede anche durante il nuoto?</summary><p>Se la gara si nuota con la muta, il body resta coperto nella frazione di nuoto. Lo indosso in bici e in corsa.</p></details>
-        <details><summary>Posso prendere più di uno spazio?</summary><p>Sì, anche una coppia, come i due lati del petto o le due gambe. Scrivimi e preparo un'unica proposta.</p></details>
+        <details><summary>Posso prendere più di uno spazio?</summary><p>Sì, anche una coppia, come i due lati del petto o i due fianchi. Scrivimi e preparo un'unica proposta.</p></details>
         <details><summary>Entro quando devo decidere?</summary><p>Gli spazi si prenotano fino al <span data-deadline>30 giugno 2027</span>, che è anche il termine per mandare il logo e saldare. Poi il body va in produzione per essere pronto prima della gara. Gli spazi si assegnano in ordine di firma del contratto.</p></details>
         <details><summary>Come funziona il pagamento? Serve una fattura?</summary><p>Si paga con bonifico: metà alla firma del contratto, metà entro la chiusura sponsor. Il documento fiscale e le eventuali ritenute sono scritti nel contratto, così li conosci prima di pagare.</p></details>
         <details><summary>E se la gara viene annullata o non riesco a partire?</summary><p>Se la gara viene rinviata, la sponsorizzazione passa alla nuova data. Se viene annullata, o se un infortunio mi impedisce di partire, scegli tu: spostiamo il logo su un'altra gara IRONMAN o ti rimborso metà del prezzo. I dettagli sono nei termini qui sotto.</p></details>
@@ -793,14 +793,14 @@ const CONFIG = {
       desc: 'Un quadrato sulla manica destra, lato esterno.',
       perks: [],
       arm: -1 },
-    { id: 'gamba-sx', n: 7, name: 'Gamba sinistra', zone: 'Gambe', w: 26, h: 8, price: 900,
-      desc: 'Una fascia verticale sul lato esterno della coscia sinistra, dal fianco all\'orlo del pantaloncino.',
+    { id: 'fianco-sx', n: 7, name: 'Fianco sinistro', zone: 'Fianchi', w: 26, h: 8, price: 900,
+      desc: 'Una fascia verticale sul fianco sinistro, tra l\'ascella e l\'anca.',
       perks: [],
-      at: [0.16, 0.79, 0.005], dir: [1, 0, 0], up: [0, 0, 1] },
-    { id: 'gamba-dx', n: 8, name: 'Gamba destra', zone: 'Gambe', w: 26, h: 8, price: 900,
-      desc: 'Una fascia verticale sul lato esterno della coscia destra, dal fianco all\'orlo del pantaloncino.',
+      at: [0.14, 1.08, 0], dir: [1, 0, 0], up: [0, 0, 1] },
+    { id: 'fianco-dx', n: 8, name: 'Fianco destro', zone: 'Fianchi', w: 26, h: 8, price: 900,
+      desc: 'Una fascia verticale sul fianco destro, tra l\'ascella e l\'anca.',
       perks: [],
-      at: [-0.16, 0.79, 0.005], dir: [-1, 0, 0], up: [0, 0, -1] },
+      at: [-0.14, 1.08, 0], dir: [-1, 0, 0], up: [0, 0, -1] },
     { id: 'schiena', n: 9, name: 'Schiena alta', zone: 'Retro', w: 24, h: 14, price: 1800,
       desc: 'Il formato più grande del body, tra le scapole, subito sotto il mio nome.',
       perks: [],
@@ -1280,7 +1280,7 @@ function init3D() {
   function makeSlot(s) {
     const fr = slotFrame(s);
     const w = s.w / 100, h = s.h / 100;
-    const geo = decalGeometry(fr, w, h, s.zone === 'Gambe' ? 0.06 : 0.05);
+    const geo = decalGeometry(fr, w, h, s.zone === 'Fianchi' ? 0.06 : 0.05);
     const long = 900, ratio = w / h;
     const cw = ratio >= 1 ? long : Math.max(128, Math.round(long * ratio));
     const ch = ratio >= 1 ? Math.max(128, Math.round(long / ratio)) : long;
@@ -1353,12 +1353,12 @@ function init3D() {
     ctx.font = `${weight} ${fs}px ${DISP}`;
     return fs;
   }
-  // colore di stampa: scuro sul tessuto chiaro, bianco sul tessuto scuro (es. fasce blu delle gambe)
+  // colore di stampa: scuro sul tessuto chiaro, bianco sul tessuto scuro (es. fasce blu dei fianchi)
   const hexRGB = (hx) => { const n = parseInt(hx.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const lum = (c) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255;
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
   function inkOf(s) {
-    const ground = hexRGB(s.zone === 'Gambe' ? CONFIG.suit.panel : CONFIG.suit.base);
+    const ground = hexRGB(s.zone === 'Fianchi' ? CONFIG.suit.panel : CONFIG.suit.base);
     if (lum(ground) < 0.5) return [255, 255, 255];
     const p = hexRGB(CONFIG.suit.panel);
     return lum(p) < 0.4 ? p : [17, 24, 39];
@@ -1589,7 +1589,7 @@ function rowHTML(s) {
 }
 
 function viewList() {
-  const zones = ['Fronte', 'Spalle', 'Gambe', 'Retro'];
+  const zones = ['Fronte', 'Spalle', 'Fianchi', 'Retro'];
   const free = CONFIG.slots.filter((s) => !s.sold).length;
   return `<div class="p-head">
       <p class="eyebrow">${free} spazi liberi su ${CONFIG.slots.length}</p>
@@ -1658,7 +1658,7 @@ function viewForm(s) {
           <label><input type="radio" name="mode" id="f-mode-orig" value="orig" ${state.logoMode === 'orig' ? 'checked' : ''}><span class="sw"></span>Colori originali</label>
           <label><input type="radio" name="mode" id="f-mode-mono" value="mono" ${state.logoMode === 'mono' ? 'checked' : ''}><span class="sw w"></span>Monocromatico</label>
         </div>
-        <span class="muted" style="font-size:13px">Monocromatico: blu marino sul bianco, bianco sulle fasce blu delle gambe.</span>
+        <span class="muted" style="font-size:13px">Monocromatico: blu marino sul bianco, bianco sulle fasce blu dei fianchi.</span>
       </div>
       <div class="field"><label for="f-note">Note <span>(facoltativo)</span></label><textarea id="f-note" placeholder="Pantone, versione del logo, richieste particolari">${esc(f.note)}</textarea></div>
       <button type="submit" class="btn primary block">Continua al riepilogo</button>
