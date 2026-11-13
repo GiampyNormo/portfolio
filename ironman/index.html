@@ -714,7 +714,7 @@ a{color:inherit}
           <p><strong>Quali dati:</strong> nome dell'azienda, nome del referente, email, sito web, note e logo che inserisci nel modulo di prenotazione.</p>
           <p><strong>Perché:</strong> per rispondere alla richiesta e gestire il contratto (art. 6.1.b GDPR) e per gli obblighi fiscali (art. 6.1.c GDPR). Nome, logo e sito dell'azienda vengono pubblicati sul body, in questa pagina e sui social perché sono l'oggetto stesso della sponsorizzazione. I dati non vengono venduti né usati per pubblicità di terzi.</p>
           <p><strong>Per quanto tempo:</strong> per la durata dell'accordo e poi per 10 anni, come richiesto dalle norme fiscali. Le richieste che non diventano un contratto vengono cancellate entro 12 mesi.</p>
-          <p>Quando invii la richiesta, i dati del modulo passano dal servizio FormSubmit (formsubmit.co), che li inoltra come email all'indirizzo qui sopra, gestito da Gmail (Google); questi servizi possono trattarli anche fuori dall'Unione europea. Il sito non li salva ed è ospitato da GitHub Pages (GitHub). Il logo che carichi per provarlo sul body in 3D resta nel tuo browser e non viene inviato. Il codice di questa pagina non usa cookie né strumenti di tracciamento; carica però i caratteri da Google Fonts e la libreria 3D da jsDelivr, che ricevono l'indirizzo IP del visitatore per fornire i file.</p>
+          <p>Quando invii la richiesta, i dati del modulo passano dal servizio FormSubmit (formsubmit.co), che li inoltra come email all'indirizzo qui sopra, gestito da Gmail (Google), e vengono salvati in un foglio Google Fogli dell'Atleta, insieme al logo se l'hai caricato (nel suo Google Drive); questi servizi possono trattarli anche fuori dall'Unione europea. Sulla pagina compare pubblicamente solo se uno spazio è prenotato o venduto; nome, sito e logo dell'azienda compaiono solo dopo la conferma. Il sito è ospitato da GitHub Pages (GitHub). Se carichi un logo solo per provarlo sul body in 3D e non invii la richiesta, resta nel tuo browser. Il codice di questa pagina non usa cookie né strumenti di tracciamento; carica però i caratteri da Google Fonts e la libreria 3D da jsDelivr, che ricevono l'indirizzo IP del visitatore per fornire i file.</p>
           <p><strong>I tuoi diritti:</strong> puoi chiedere accesso, rettifica, cancellazione, limitazione e portabilità dei dati e opporti al trattamento (artt. 15–22 GDPR) scrivendo all'indirizzo qui sopra. Puoi anche fare reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>).</p>
         </div></details>
 
@@ -763,6 +763,9 @@ const CONFIG = {
   // La prima richiesta fa arrivare un'email "Activate Form": cliccala, poi le richieste arrivano tutte.
   // Dopo l'attivazione puoi mettere qui il codice alias che ti manda FormSubmit, al posto dell'email.
   formTo: 'edoardo.g.guttuso@gmail.com',
+  // Prenotazioni automatiche: indirizzo dell'app web del Foglio Google (prenotazioni/ISTRUZIONI.md).
+  // Vuoto = il sito funziona come prima: gli spazi si segnano a mano qui sotto con "sold".
+  bookings: { url: 'https://script.google.com/macros/s/AKfycbzis-esNHUTVKsDc0VsunNbFHNYKgO0k9RBfNQSu19Qlm5rvq3z-0auPBe9EehiIFK4vQ/exec' },
   hidePrices: false, // true = prezzi nascosti con *** (per video e anteprime); false = prezzi visibili
   // base = tessuto principale, panel = blu marino (fasce laterali e gambe, zip), accent = arancio (bordini e righe)
   suit: { base: '#F4F5F2', panel: '#14264A', accent: '#FF5B1F', inner: '#C9CFD6', zip: '#14264A' },
@@ -1397,8 +1400,11 @@ function init3D() {
       if (s.sold.img) { drawLogo(ctx, s.sold.img, W * 0.08, H * 0.12, W * 0.84, H * 0.76, s.sold.mode || 'orig', ink); }
       else {
         ctx.fillStyle = rgba(ink, 1); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        fitText(ctx, s.sold.name.toUpperCase(), 900, W * 0.84, H * 0.78);
-        ctx.fillText(s.sold.name.toUpperCase(), W / 2, H / 2 + H * 0.03);
+        const label = (s.sold.pending ? 'Prenotato' : s.sold.name).toUpperCase();
+        if (s.sold.pending) ctx.globalAlpha = 0.55;
+        fitText(ctx, label, 900, W * 0.84, H * 0.78);
+        ctx.fillText(label, W / 2, H / 2 + H * 0.03);
+        ctx.globalAlpha = 1;
       }
       if (sel || hot) { ctx.setLineDash([]); ctx.lineWidth = lw * 0.6; ctx.strokeStyle = rgba(ink, 0.5); rr(ctx, bx, by, bw, bh, rad); ctx.stroke(); }
     } else if (state.logo && (sel || hot)) {
@@ -1615,7 +1621,7 @@ function viewDetail(s) {
   let buy;
   if (s.sold) {
     const firstFree = CONFIG.slots.find((x) => !x.sold);
-    buy = `<div class="soldbox"><span>${s.sold.pending ? 'Questo spazio è prenotato' : 'Questo spazio è già di'} <b>${esc(s.sold.name)}</b>${s.sold.demo ? ' (sponsor di esempio)' : ''}.</span>
+    buy = `<div class="soldbox"><span>${s.sold.pending ? (s.sold.name ? `Questo spazio è prenotato da <b>${esc(s.sold.name)}</b>, in attesa di conferma.` : 'Questo spazio è prenotato, in attesa di conferma.') : `Questo spazio è già di <b>${esc(s.sold.name)}</b>${s.sold.demo ? ' (sponsor di esempio)' : ''}.`}</span>
       ${firstFree ? `<button type="button" class="btn ghost small" data-act="pick" data-id="${firstFree.id}">Vedi uno spazio libero</button>` : ''}</div>`;
   } else {
     buy = `<div class="buy"><div class="price"><small>Prezzo</small>${money(s.price)}</div>
@@ -1727,7 +1733,7 @@ async function sendRequest(s) {
     Referente: f.name,
     email: f.email,
     'Sito web': f.web || '-',
-    Logo: state.logo ? `${state.logo.name} · ${state.logoMode === 'mono' ? 'monocromatico' : 'colori originali'} (da mandare in risposta)` : 'lo manda più avanti',
+    Logo: state.logo ? `${state.logo.name} · ${state.logoMode === 'mono' ? 'monocromatico' : 'colori originali'} (${CONFIG.bookings.url ? 'caricato nel modulo, salvato nel Foglio Google' : 'da mandare in risposta'})` : 'lo manda più avanti',
     Note: f.note || '-',
     Termini: 'Letti e accettati (versione del 9 novembre 2026)',
   };
@@ -1750,9 +1756,70 @@ async function sendRequest(s) {
 }
 const SEND_LIMIT = 40000;
 
+// ---- prenotazioni condivise (Foglio Google) ----
+// il logo caricato parte ridotto a 1000 px (PNG, trasparenza compresa); serve per l'anteprima sul body
+function logoForBooking() {
+  const img = state.logo?.img; if (!img) return '';
+  try {
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (!iw || !ih) return '';
+    const k = Math.min(1, 1000 / Math.max(iw, ih));
+    const c = document.createElement('canvas'); c.width = Math.round(iw * k); c.height = Math.round(ih * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const d = c.toDataURL('image/png');
+    return d.length < 2800000 ? d : '';
+  } catch { return ''; }
+}
+async function sendBooking(s) {
+  if (!CONFIG.bookings.url) return false;
+  const f = state.form;
+  const body = JSON.stringify({ spazio: s.id, azienda: f.company, referente: f.name, email: f.email, sito: f.web, note: f.note, logo: logoForBooking(), _honey: '' });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), SEND_LIMIT);
+  try {
+    const r = await fetch(CONFIG.bookings.url, { method: 'POST', body, signal: ctrl.signal });
+    const j = await r.json().catch(() => ({}));
+    return !!j.ok;
+  } catch { return false; } finally { clearTimeout(timer); }
+}
+async function loadBookings() {
+  if (!CONFIG.bookings.url) return;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const r = await fetch(CONFIG.bookings.url + (CONFIG.bookings.url.includes('?') ? '&' : '?') + 't=' + Date.now(), { signal: ctrl.signal });
+    const j = await r.json();
+    applyBookings(j.spazi || {});
+  } catch { /* senza foglio il sito resta com'è */ } finally { clearTimeout(timer); }
+}
+function applyBookings(spazi) {
+  CONFIG.slots.forEach((s) => {
+    const b = spazi[s.id];
+    const before = JSON.stringify(s.sold ? { p: !!s.sold.pending, n: s.sold.name, l: !!s.sold.logo } : null);
+    if (b && b.stato === 'venduto') {
+      const sold = { name: b.azienda || '', web: b.sito || '', remote: true, logo: b.logo || '', mode: s.zone === 'Fianchi' ? 'mono' : 'orig' };
+      if (sold.logo) {
+        const img = new Image();
+        img.onload = () => { if (three) three.redraw(s.id); };
+        img.src = sold.logo; sold.img = img;
+      }
+      s.sold = sold;
+    } else if (b && b.stato === 'prenotato') {
+      if (!(s.sold && !s.sold.remote && !s.sold.pending)) s.sold = { name: '', pending: true, remote: true };
+    } else if (s.sold && s.sold.remote) {
+      delete s.sold;
+    }
+    const after = JSON.stringify(s.sold ? { p: !!s.sold.pending, n: s.sold.name, l: !!s.sold.logo } : null);
+    if (before !== after && three) three.refreshSlot(s.id);
+  });
+  renderFunding();
+  renderWall();
+  if (state.step === 'list' || state.step === 'detail') renderPanel();
+}
+
 function viewDone(s) {
   const m = state.mail || buildMail(s);
-  const reply = `Ti rispondo a <b>${esc(state.form.email)}</b> entro 5 giorni lavorativi${state.logo ? ': il logo me lo mandi rispondendo a quell\'email' : ''}.`;
+  const reply = `Ti rispondo a <b>${esc(state.form.email)}</b> entro 5 giorni lavorativi${state.logo && !CONFIG.bookings.url ? ': il logo me lo mandi rispondendo a quell\'email' : ''}.`;
   const copy = `<details class="req">
         <summary>L'email non si apre? Copia il testo</summary>
         <p class="fineprint">Copia il testo e incollalo in una nuova email a <b>${esc(CONFIG.email)}</b>.</p>
@@ -1870,14 +1937,15 @@ panel.addEventListener('click', (e) => {
       setTimeout(() => { if (wait) wait.textContent = 'Ancora qualche secondo, la richiesta sta partendo…'; }, 20000),
     ];
     state.mail = buildMail(s);
-    sendRequest(s).then((res) => {
+    Promise.all([sendRequest(s), sendBooking(s)]).then(([res, booked]) => {
       waitT.forEach(clearTimeout);
       state.sent = res;
-      if (res === 'ok') {
-        s.sold = { name: state.form.company, pending: true, img: state.logo?.img, mode: state.logoMode };
+      if (res === 'ok' || booked) {
+        s.sold = { name: '', pending: true };
         if (three) three.refreshSlot(s.id);
         renderFunding();
       }
+      if (booked) loadBookings();
       state.step = 'done';
       renderPanel();
     });
@@ -1906,6 +1974,7 @@ function renderSocial() {
 renderSocial();
 renderPanel();
 init3D();
+loadBookings();
 </script>
 
 </body></html>
