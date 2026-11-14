@@ -7,19 +7,25 @@
 <meta name="description" content="Compra uno spazio sul body da gara del mio IRONMAN: scegli la posizione, carica il logo e guardalo in 3D.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="canonical" href="https://edoardoguttuso.it/ironman/">
 <meta property="og:url" content="https://edoardoguttuso.it/ironman/">
 <meta property="og:title" content="Body IRONMAN di Edoardo">
 <meta property="og:description" content="Compra uno spazio sul body da gara del mio IRONMAN: scegli la posizione, carica il logo e guardalo in 3D.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://edoardoguttuso.it/ironman/anteprima.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="it_IT">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF5B1F'/%3E%3Ctext x='32' y='43' font-family='Arial Black,Arial' font-weight='900' font-size='28' text-anchor='middle' fill='%23151515'%3EEG%3C/text%3E%3C/svg%3E">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 </head>
 <body>
 <style>
-/* Layout: header → hero (tesi + barra percorso e spazi) → configuratore (stage 3D | pannello pettorale) → come funziona → cosa ottieni → la gara → FAQ → contatti */
+/* Layout: header → hero (titolo, testo e pannello pettorale a sinistra | stage 3D fisso a destra) → striscia gara, percorso e spazi → come funziona → cosa ottieni → la gara → FAQ → contatti */
 :root{
   --bg:#ECEFF1;
   --surface:#FFFFFF;
@@ -105,15 +111,15 @@ a{color:inherit}
 @media (max-width:860px){.nav{display:none}}
 
 /* Hero */
-.hero{padding-block:28px 40px}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);column-gap:48px;row-gap:36px;align-items:center}
-.hero-top{grid-column:1/-1}
-.hero h1{font-size:clamp(50px,8.4vw,118px);font-weight:900;margin-top:14px}
+.hero{padding-block:16px 32px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);grid-template-areas:"top stage" "copy stage" "panel stage";grid-template-rows:auto auto 1fr;column-gap:40px;row-gap:28px;align-items:start}
+.hero-top{grid-area:top}
+.hero-copy{grid-area:copy}
+.hero-grid>.stage{grid-area:stage}
+.hero-panel{grid-area:panel;min-width:0;scroll-margin-top:16px}
+.hero h1{font-size:clamp(50px,8.4vw,84px);font-weight:900;margin-top:14px}
 .hero h1 .hl{color:var(--accent-text);display:block}
-@media (min-width:901px){
-  .hero-top{text-align:center}
-  .hero h1{font-size:clamp(64px,6.6vw,104px);text-wrap:balance}
-}
+@media (min-width:981px){.hero h1{font-size:clamp(56px,5.4vw,78px)}}
 .lead{font-size:clamp(17px,1.5vw,19px);max-width:56ch;color:var(--ink)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 .hero-side{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);display:grid}
@@ -138,7 +144,12 @@ a{color:inherit}
 .fund-bar span.held{background:repeating-linear-gradient(135deg,var(--accent) 0 4px,transparent 4px 8px);border-color:var(--accent)}
 .fund-total{font-size:15px;color:var(--muted)}
 .fund-total strong{font:800 30px/1 var(--f-display);color:var(--ink);margin-right:4px}
-@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:32px}}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr;grid-template-areas:"top" "stage" "copy" "panel";grid-template-rows:none;row-gap:24px}}
+.strip{padding-block:0 40px}
+.strip .hero-side{grid-template-columns:repeat(3,minmax(0,1fr))}
+.strip .hs-block{align-content:start}
+.strip .hs-block+.hs-block{border-top:0;border-left:1px solid var(--line)}
+@media (max-width:980px){.strip .hero-side{grid-template-columns:1fr}.strip .hs-block+.hs-block{border-left:0;border-top:1px solid var(--line)}}
 .me-chip{display:flex;align-items:center;gap:12px;margin-top:22px;width:fit-content;max-width:100%;text-decoration:none;color:inherit}
 .me-chip img{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--line)}
 .me-chip>span{display:grid;line-height:1.3;font-size:15px;min-width:0}
@@ -165,9 +176,6 @@ a{color:inherit}
 .sec-head p.muted{max-width:46ch}
 
 /* Configurator */
-.config-sec{padding-block:24px 56px}
-.config{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:980px){.config{grid-template-columns:1fr}}
 .stage{position:relative;height:clamp(540px,78vh,780px);border-radius:16px;overflow:hidden;background:radial-gradient(120% 90% at 50% 30%,var(--stage-a) 0%,var(--stage-b) 100%);border:1px solid var(--line);position:sticky;top:16px;isolation:isolate}
 @media (max-width:980px){.stage{position:relative;top:auto;height:min(560px,72svh);min-height:440px}}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
@@ -429,6 +437,27 @@ a{color:inherit}
           <a class="btn ghost" href="#come-funziona">Come funziona</a>
         </div>
       </div>
+        <div class="stage" id="stage">
+          <canvas id="gl" aria-label="Modello 3D del body da gara, trascina per ruotarlo"></canvas>
+          <div class="hotspots" id="hotspots"></div>
+          <div class="stage-loading" id="stageLoading"><span class="spinner"></span><span>Sto cucendo il body…</span></div>
+          <div class="stage-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4"/></svg><span>Trascina per ruotare</span></div>
+          <div class="stage-legend"><span class="lg-plus">+</span>Spazio libero</div>
+          <div class="stage-tools" role="toolbar" aria-label="Vista del body">
+            <button type="button" data-view="front" class="on">Fronte</button>
+            <button type="button" data-view="side">Lato</button>
+            <button type="button" data-view="back">Retro</button>
+            <span class="sep" aria-hidden="true"></span>
+            <button type="button" class="icon" id="zoomBtn" aria-pressed="false" aria-label="Avvicina" title="Avvicina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2M11 8.5v5M8.5 11h5"/></svg></button>
+            <button type="button" class="icon" id="spinBtn" aria-pressed="true" aria-label="Rotazione automatica" title="Rotazione automatica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg></button>
+          </div>
+        </div>
+        <div class="hero-panel" id="spazi"><div class="panel" id="panel" aria-live="polite"></div></div>
+    </div>
+  </section>
+
+  <section class="strip">
+    <div class="wrap">
       <aside class="hero-side" aria-label="Gara, percorso e spazi venduti">
         <div class="hs-block">
           <div class="hs-head"><span class="eyebrow">Cervia · 18.09.2027</span><span class="mono">10° anniversario</span></div>
@@ -451,36 +480,6 @@ a{color:inherit}
           <p class="fund-total"><strong id="fundRaised">–</strong> raccolti su <span id="fundGoal">–</span></p>
         </div>
       </aside>
-    </div>
-  </section>
-
-  <section class="config-sec" id="spazi">
-    <div class="wrap">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">Il body da gara</p>
-          <h2>Gira il body. Scegli lo spazio.</h2>
-        </div>
-        <p class="muted">Ogni <b>+</b> è uno spazio libero. Toccalo per vedere misure e prezzo, poi carica il tuo logo per vederlo stampato.</p>
-      </div>
-      <div class="config">
-        <div class="stage" id="stage">
-          <canvas id="gl" aria-label="Modello 3D del body da gara, trascina per ruotarlo"></canvas>
-          <div class="hotspots" id="hotspots"></div>
-          <div class="stage-loading" id="stageLoading"><span class="spinner"></span><span>Sto cucendo il body…</span></div>
-          <div class="stage-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4"/></svg><span>Trascina per ruotare</span></div>
-          <div class="stage-legend"><span class="lg-plus">+</span>Spazio libero</div>
-          <div class="stage-tools" role="toolbar" aria-label="Vista del body">
-            <button type="button" data-view="front" class="on">Fronte</button>
-            <button type="button" data-view="side">Lato</button>
-            <button type="button" data-view="back">Retro</button>
-            <span class="sep" aria-hidden="true"></span>
-            <button type="button" class="icon" id="zoomBtn" aria-pressed="false" aria-label="Avvicina" title="Avvicina"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2M11 8.5v5M8.5 11h5"/></svg></button>
-            <button type="button" class="icon" id="spinBtn" aria-pressed="true" aria-label="Rotazione automatica" title="Rotazione automatica"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg></button>
-          </div>
-        </div>
-        <div class="panel" id="panel" aria-live="polite"></div>
-      </div>
     </div>
   </section>
 
