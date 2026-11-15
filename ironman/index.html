@@ -157,6 +157,14 @@ a{color:inherit}
 .me-chip em{font-style:normal;color:var(--muted)}
 .me-chip:hover strong{text-decoration:underline;text-underline-offset:3px}
 
+/* Numeri Instagram */
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.nums div{background:var(--surface);padding:24px;display:grid;gap:10px;align-content:start}
+.nums b{font:900 clamp(38px,4.4vw,60px)/.9 var(--f-display);font-variant-numeric:tabular-nums;color:var(--accent-text)}
+.nums span{color:var(--muted);font-size:15px;line-height:1.4;max-width:32ch}
+.nums-note{margin-top:14px;max-width:80ch}
+@media (max-width:700px){.nums{grid-template-columns:1fr 1fr}.nums div{padding:18px 16px}}
+
 /* Chi sono */
 .me-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:48px;align-items:center}
 .me-photo{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);aspect-ratio:4/5;background:var(--sunk)}
@@ -430,7 +438,7 @@ a{color:inherit}
         <p class="lead">Il 18 settembre 2027 sono al via dell'IRONMAN Italy Emilia-Romagna a Cervia, nell'edizione del decimo anniversario. Il mio body di gara ha undici spazi per le aziende che vogliono esserci: dalla T1 al traguardo. Scegli il tuo spazio, carica il logo e guardalo sul body in 3D.</p>
         <a class="me-chip" href="https://www.instagram.com/edoardo_guttuso/" target="_blank" rel="noopener" data-ig-link>
           <img src="data:image/jpeg;base64,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" alt="" width="52" height="52">
-          <span><strong><span data-ig-handle>@edoardo_guttuso</span> · <span data-ig-followers>10.800</span> follower</strong><em>Videomaker a Milano</em></span>
+          <span><strong><span data-ig-handle>@edoardo_guttuso</span> · <span data-ig-followers>10.800</span> follower</strong><em>367.693 visualizzazioni negli ultimi 90 giorni</em></span>
         </a>
         <div class="hero-cta">
           <a class="btn primary" href="#spazi">Scegli il tuo spazio</a>
@@ -530,6 +538,27 @@ a{color:inherit}
         <a class="btn ghost" href="https://www.instagram.com/edoardo_guttuso/" target="_blank" rel="noopener" data-ig-link>Guarda il mio Instagram</a>
         <p class="fineprint">Numeri del profilo <span data-ig-handle>@edoardo_guttuso</span>, <span data-ig-asof>novembre 2026</span>.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="sec" id="numeri">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">I numeri del mio Instagram</p>
+          <h2>Chi vede i miei contenuti</h2>
+        </div>
+        <p class="muted">Ultimi 90 giorni, dagli Insight di Instagram del profilo <span data-ig-handle>@edoardo_guttuso</span>.</p>
+      </div>
+      <div class="nums">
+        <div><b>367.693</b><span>visualizzazioni dei miei contenuti</span></div>
+        <div><b>70,1%</b><span>delle visualizzazioni arriva da persone che non mi seguono ancora</span></div>
+        <div><b>77,7%</b><span>delle visualizzazioni arriva dai reel</span></div>
+        <div><b>15.995</b><span>interazioni: like, commenti, salvataggi e condivisioni</span></div>
+        <div><b>8.642</b><span>account che hanno interagito</span></div>
+        <div><b>111.000</b><span>visualizzazioni del reel più visto, del 9 settembre</span></div>
+      </div>
+      <p class="fineprint nums-note">Dati letti il 15 novembre 2026. Negli ultimi 30 giorni: 79.814 visualizzazioni, 2.509 interazioni e 2.519 visite al profilo. Sono risultati passati, non una garanzia sui contenuti futuri.</p>
     </div>
   </section>
 
@@ -757,7 +786,7 @@ const CONFIG = {
   race: { name: 'IRONMAN Italy Emilia-Romagna', place: 'Cervia', edition: '10° anniversario', date: '2027-09-18', deadline: '30 giugno 2027' },
   email: 'edoardo.g.guttuso@gmail.com',
   // profilo Instagram mostrato in alto e nella sezione "Chi sono": aggiorna i numeri ogni tanto
-  social: { instagram: 'edoardo_guttuso', followers: 10800, posts: 388, asOf: 'novembre 2026' },
+  social: { instagram: 'edoardo_guttuso', followers: 10868, posts: 388, asOf: 'novembre 2026' },
   // Le richieste partono dal sito tramite FormSubmit (formsubmit.co) e arrivano a questo indirizzo.
   // La prima richiesta fa arrivare un'email "Activate Form": cliccala, poi le richieste arrivano tutte.
   // Dopo l'attivazione puoi mettere qui il codice alias che ti manda FormSubmit, al posto dell'email.
