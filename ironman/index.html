@@ -1422,15 +1422,6 @@ function init3D() {
       ctx.restore();
       ctx.strokeStyle = on ? CONFIG.suit.accent : rgba(ink, 0.6);
       dashed(ctx, bx, by, bw, bh, rad, u * 1.5, lw);
-      if (s.w * s.h >= 150) {
-        const label = `${num(s.w)} × ${num(s.h)} CM`;
-        const wide = W / H > 4;
-        const fs = wide ? H * 0.34 : H * 0.12;
-        ctx.font = `800 ${fs}px ${DISP}`; ctx.fillStyle = rgba(ink, on ? 0.95 : 0.7);
-        ctx.textAlign = 'left'; ctx.textBaseline = wide ? 'middle' : 'alphabetic';
-        if (wide) ctx.fillText(label, bx + lw * 2.5, H / 2 + fs * 0.05);
-        else ctx.fillText(label, bx + lw * 2.5, by + bh - lw * 2.2);
-      }
     }
     st.tex.needsUpdate = true;
   }
